@@ -1,5 +1,6 @@
 import { getRouteBaselineAction } from "@/app/actions/route-baseline";
 import { getOptimizedRouteAction } from "@/app/actions/route-optimized";
+import RouteMapPanel from "@/components/route-map-panel";
 
 export default async function DashboardShell() {
   const baseline = await getRouteBaselineAction();
@@ -50,10 +51,7 @@ export default async function DashboardShell() {
             Improvement: <strong>{optimized.comparison.improvementPercent.toFixed(2)}%</strong>
           </div>
         </article>
-        <article className="panel">
-          <h2>Map Panel</h2>
-          <div className="placeholder">Map panel placeholder (pins, paths, and active driver location).</div>
-        </article>
+        <RouteMapPanel baseline={baseline} optimized={optimized} />
       </section>
     </main>
   );
