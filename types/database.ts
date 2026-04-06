@@ -69,3 +69,25 @@ export type TaskWithLocation = {
   status: Database["public"]["Tables"]["tasks"]["Row"]["status"];
   location: Database["public"]["Tables"]["locations"]["Row"];
 };
+
+export type DistanceMetric = "manhattan" | "euclidean";
+
+export type RoutePoint = {
+  x: number;
+  y: number;
+};
+
+export type BaselineRouteStop = {
+  taskId: number;
+  locationId: number;
+  locationName: string;
+  x: number;
+  y: number;
+};
+
+export type BaselineRouteResponse = {
+  startPoint: RoutePoint;
+  metric: DistanceMetric;
+  sequence: BaselineRouteStop[];
+  totalDistance: number;
+};
