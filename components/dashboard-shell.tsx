@@ -1,26 +1,34 @@
-import { getPendingTasksWithLocations } from "@/lib/tasks";
+import { getRouteBaselineAction } from "@/app/actions/route-baseline";
 
 export default async function DashboardShell() {
-  const pendingTasks = await getPendingTasksWithLocations();
+  const baseline = await getRouteBaselineAction();
 
   return (
     <main>
       <h1>Operations Dashboard</h1>
-      <p>Pending tasks now include location coordinates from a single joined query.</p>
+      <p>Baseline route uses a deterministic pending-task order (`tasks.id ASC`) from dispatch dock (0,0).</p>
       <section className="grid">
         <article className="panel">
-          <h2>Pending Task List</h2>
+          <h2>Baseline Task Sequence</h2>
           <ul>
-            {pendingTasks.map((task) => (
-              <li key={task.id}>
-                Task #{task.id} · {task.location.name} ({task.location.x}, {task.location.y})
+            {baseline.sequence.map((stop) => (
+              <li key={stop.taskId}>
+                Task #{stop.taskId} · {stop.locationName} ({stop.x}, {stop.y})
               </li>
             ))}
           </ul>
         </article>
         <article className="panel">
           <h2>Route Metrics</h2>
-          <div className="placeholder">Route metrics placeholder (ETA, stop count, total distance).</div>
+          <div>
+            Metric: <strong>{baseline.metric}</strong>
+          </div>
+          <div>
+            Total Distance: <strong>{baseline.totalDistance.toFixed(2)}</strong>
+          </div>
+          <div>
+            Start Point: <strong>({baseline.startPoint.x}, {baseline.startPoint.y})</strong>
+          </div>
         </article>
         <article className="panel">
           <h2>Map Panel</h2>
