@@ -1,6 +1,15 @@
 {
   "env": {
-    "NEXT_PUBLIC_SUPABASE_URL": "https://your-project-ref.supabase.co",
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "your-supabase-anon-key"
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "@next_public_supabase_anon_key",
+    "SUPABASE_URL": "@supabase_url",
+    "POSTGRES_DATABASE": "@postgres_database",
+    "POSTGRES_HOST": "@postgres_host",
+    "POSTGRES_PASSWORD": "@postgres_password",
+    "POSTGRES_PRISMA_URL": "@postgres_prisma_url",
+    "POSTGRES_URL": "@postgres_url",
+    "POSTGRES_URL_NON_POOLING": "@postgres_url_non_pooling",
+    "POSTGRES_USER": "@postgres_user",
+    "SUPABASE_JWT_SECRET": "@supabase_jwt_secret",
+    "SUPABASE_SERVICE_ROLE_KEY": "@supabase_service_role_key"
   }
 }

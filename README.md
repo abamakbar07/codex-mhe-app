@@ -9,10 +9,19 @@ This project is a Next.js App Router starter with Supabase wiring.
    pnpm install
    ```
 2. Ensure `.env.local` has values for:
-   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `POSTGRES_DATABASE`
+   - `POSTGRES_HOST`
+   - `POSTGRES_PASSWORD`
+   - `POSTGRES_PRISMA_URL`
+   - `POSTGRES_URL`
+   - `POSTGRES_URL_NON_POOLING`
+   - `POSTGRES_USER`
+   - `SUPABASE_JWT_SECRET`
+   - `SUPABASE_SERVICE_ROLE_KEY`
    - `ROUTE_DISTANCE_METRIC` (`manhattan` or `euclidean`, defaults to `manhattan`)
-3. In Vercel, go to **Project Settings → Environment Variables** and add the same keys for Preview and Production.
+3. In Vercel, go to **Project Settings → Environment Variables** and add the same keys for Preview and Production (plus your Postgres/Supabase server-side credentials).
 4. Run the app:
    ```bash
    pnpm dev
@@ -32,8 +41,17 @@ Use this sequence before sharing a preview URL:
    vercel env ls preview
    ```
    Required keys:
-   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `POSTGRES_DATABASE`
+   - `POSTGRES_HOST`
+   - `POSTGRES_PASSWORD`
+   - `POSTGRES_PRISMA_URL`
+   - `POSTGRES_URL`
+   - `POSTGRES_URL_NON_POOLING`
+   - `POSTGRES_USER`
+   - `SUPABASE_JWT_SECRET`
+   - `SUPABASE_SERVICE_ROLE_KEY`
    - `ROUTE_DISTANCE_METRIC`
 3. Deploy preview:
    ```bash
