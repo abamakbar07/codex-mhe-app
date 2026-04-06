@@ -69,6 +69,12 @@ export default function RouteMapPanel({ baseline, optimized }: RouteMapPanelProp
       <h2>Route Map</h2>
       <div className="metrics-row">
         <div>
+          Initial: <strong>{optimized.initialAlgorithmName}</strong>
+        </div>
+        <div>
+          Final: <strong>{optimized.finalAlgorithmName}</strong>
+        </div>
+        <div>
           Before: <strong>{optimized.comparison.beforeDistance.toFixed(2)}</strong>
         </div>
         <div>

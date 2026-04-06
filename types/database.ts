@@ -72,6 +72,8 @@ export type TaskWithLocation = {
 
 export type DistanceMetric = "manhattan" | "euclidean";
 
+export type RouteAlgorithm = "nearest-neighbor" | "nearest-neighbor-2opt";
+
 export type RoutePoint = {
   x: number;
   y: number;
@@ -109,5 +111,8 @@ export type OptimizedRouteResponse = {
   metric: DistanceMetric;
   orderedTaskIds: number[];
   totalOptimizedDistance: number;
+  algorithm: RouteAlgorithm;
+  initialAlgorithmName: string;
+  finalAlgorithmName: string;
   comparison: RouteComparison;
 };

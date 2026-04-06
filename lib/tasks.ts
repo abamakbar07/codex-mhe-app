@@ -1,8 +1,10 @@
+import { optimizeRouteFromCoordinates, computeDistance } from "@/lib/routing/optimize";
 import { createClient } from "@/lib/supabase/server";
 import type {
   BaselineRouteResponse,
   DistanceMetric,
   OptimizedRouteResponse,
+  RouteAlgorithm,
   RoutePoint,
   TaskCoordinate,
   TaskWithLocation,
@@ -10,6 +12,7 @@ import type {
 
 export const DISPATCH_START_POINT: RoutePoint = { x: 0, y: 0 };
 export const DEFAULT_DISTANCE_METRIC: DistanceMetric = "manhattan";
+export const DEFAULT_ROUTE_ALGORITHM: RouteAlgorithm = "nearest-neighbor";
 
 function resolveDistanceMetric(rawMetric: string | undefined): DistanceMetric {
   if (rawMetric === "euclidean") {
@@ -17,6 +20,14 @@ function resolveDistanceMetric(rawMetric: string | undefined): DistanceMetric {
   }
 
   return DEFAULT_DISTANCE_METRIC;
+}
+
+function resolveRouteAlgorithm(rawAlgorithm: string | undefined): RouteAlgorithm {
+  if (rawAlgorithm === "nearest-neighbor-2opt") {
+    return "nearest-neighbor-2opt";
+  }
+
+  return DEFAULT_ROUTE_ALGORITHM;
 }
 
 function isTaskWithLocation(value: unknown): value is TaskWithLocation {
@@ -48,17 +59,6 @@ function ensureTaskWithLocationList(data: unknown): TaskWithLocation[] {
   return data;
 }
 
-function computeDistance(from: RoutePoint, to: RoutePoint, metric: DistanceMetric): number {
-  const deltaX = Math.abs(to.x - from.x);
-  const deltaY = Math.abs(to.y - from.y);
-
-  if (metric === "euclidean") {
-    return Math.hypot(deltaX, deltaY);
-  }
-
-  return deltaX + deltaY;
-}
-
 export function computeTotalRouteDistance(
   orderedTasks: TaskWithLocation[],
   metric: DistanceMetric,
@@ -74,74 +74,6 @@ export function computeTotalRouteDistance(
   }
 
   return totalDistance;
-}
-
-function computeTotalCoordinateDistance(
-  orderedTasks: TaskCoordinate[],
-  metric: DistanceMetric,
-  startPoint: RoutePoint,
-): number {
-  let totalDistance = 0;
-  let currentPoint = startPoint;
-
-  for (const task of orderedTasks) {
-    const nextPoint = { x: task.x, y: task.y };
-    totalDistance += computeDistance(currentPoint, nextPoint, metric);
-    currentPoint = nextPoint;
-  }
-
-  return totalDistance;
-}
-
-export function optimizeTaskRouteFromCoordinates(
-  startPoint: RoutePoint,
-  taskCoordinates: TaskCoordinate[],
-  metric: DistanceMetric = DEFAULT_DISTANCE_METRIC,
-): OptimizedRouteResponse {
-  const beforeDistance = computeTotalCoordinateDistance(taskCoordinates, metric, startPoint);
-
-  const unvisited = [...taskCoordinates];
-  const optimizedSequence: TaskCoordinate[] = [];
-  let currentPoint = startPoint;
-
-  while (unvisited.length > 0) {
-    let nearestIndex = 0;
-
-    for (let idx = 1; idx < unvisited.length; idx += 1) {
-      const currentNearest = unvisited[nearestIndex];
-      const candidate = unvisited[idx];
-
-      const currentNearestDistance = computeDistance(currentPoint, currentNearest, metric);
-      const candidateDistance = computeDistance(currentPoint, candidate, metric);
-
-      if (
-        candidateDistance < currentNearestDistance ||
-        (candidateDistance === currentNearestDistance && candidate.taskId < currentNearest.taskId)
-      ) {
-        nearestIndex = idx;
-      }
-    }
-
-    const [nearest] = unvisited.splice(nearestIndex, 1);
-    optimizedSequence.push(nearest);
-    currentPoint = nearest;
-  }
-
-  const afterDistance = computeTotalCoordinateDistance(optimizedSequence, metric, startPoint);
-  const improvementPercent =
-    beforeDistance === 0 ? 0 : ((beforeDistance - afterDistance) / beforeDistance) * 100;
-
-  return {
-    startPoint,
-    metric,
-    orderedTaskIds: optimizedSequence.map((task) => task.taskId),
-    totalOptimizedDistance: afterDistance,
-    comparison: {
-      beforeDistance,
-      afterDistance,
-      improvementPercent,
-    },
-  };
 }
 
 export async function getPendingTasksWithLocations(): Promise<TaskWithLocation[]> {
@@ -182,8 +114,10 @@ export async function getPendingTaskRouteBaseline(
 
 export async function getPendingTaskRouteOptimized(
   metricFlag: string | undefined = process.env.ROUTE_DISTANCE_METRIC,
+  algorithmFlag: string | undefined = process.env.ROUTE_OPTIMIZATION_ALGORITHM,
 ): Promise<OptimizedRouteResponse> {
   const metric = resolveDistanceMetric(metricFlag);
+  const algorithm = resolveRouteAlgorithm(algorithmFlag);
   const pendingTasks = await getPendingTasksWithLocations();
   const taskCoordinates: TaskCoordinate[] = pendingTasks.map((task) => ({
     taskId: task.id,
@@ -191,5 +125,5 @@ export async function getPendingTaskRouteOptimized(
     y: task.location.y,
   }));
 
-  return optimizeTaskRouteFromCoordinates(DISPATCH_START_POINT, taskCoordinates, metric);
+  return optimizeRouteFromCoordinates(DISPATCH_START_POINT, taskCoordinates, metric, algorithm);
 }
