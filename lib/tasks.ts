@@ -2,7 +2,9 @@ import { createClient } from "@/lib/supabase/server";
 import type {
   BaselineRouteResponse,
   DistanceMetric,
+  OptimizedRouteResponse,
   RoutePoint,
+  TaskCoordinate,
   TaskWithLocation,
 } from "@/types/database";
 
@@ -74,6 +76,74 @@ export function computeTotalRouteDistance(
   return totalDistance;
 }
 
+function computeTotalCoordinateDistance(
+  orderedTasks: TaskCoordinate[],
+  metric: DistanceMetric,
+  startPoint: RoutePoint,
+): number {
+  let totalDistance = 0;
+  let currentPoint = startPoint;
+
+  for (const task of orderedTasks) {
+    const nextPoint = { x: task.x, y: task.y };
+    totalDistance += computeDistance(currentPoint, nextPoint, metric);
+    currentPoint = nextPoint;
+  }
+
+  return totalDistance;
+}
+
+export function optimizeTaskRouteFromCoordinates(
+  startPoint: RoutePoint,
+  taskCoordinates: TaskCoordinate[],
+  metric: DistanceMetric = DEFAULT_DISTANCE_METRIC,
+): OptimizedRouteResponse {
+  const beforeDistance = computeTotalCoordinateDistance(taskCoordinates, metric, startPoint);
+
+  const unvisited = [...taskCoordinates];
+  const optimizedSequence: TaskCoordinate[] = [];
+  let currentPoint = startPoint;
+
+  while (unvisited.length > 0) {
+    let nearestIndex = 0;
+
+    for (let idx = 1; idx < unvisited.length; idx += 1) {
+      const currentNearest = unvisited[nearestIndex];
+      const candidate = unvisited[idx];
+
+      const currentNearestDistance = computeDistance(currentPoint, currentNearest, metric);
+      const candidateDistance = computeDistance(currentPoint, candidate, metric);
+
+      if (
+        candidateDistance < currentNearestDistance ||
+        (candidateDistance === currentNearestDistance && candidate.taskId < currentNearest.taskId)
+      ) {
+        nearestIndex = idx;
+      }
+    }
+
+    const [nearest] = unvisited.splice(nearestIndex, 1);
+    optimizedSequence.push(nearest);
+    currentPoint = nearest;
+  }
+
+  const afterDistance = computeTotalCoordinateDistance(optimizedSequence, metric, startPoint);
+  const improvementPercent =
+    beforeDistance === 0 ? 0 : ((beforeDistance - afterDistance) / beforeDistance) * 100;
+
+  return {
+    startPoint,
+    metric,
+    orderedTaskIds: optimizedSequence.map((task) => task.taskId),
+    totalOptimizedDistance: afterDistance,
+    comparison: {
+      beforeDistance,
+      afterDistance,
+      improvementPercent,
+    },
+  };
+}
+
 export async function getPendingTasksWithLocations(): Promise<TaskWithLocation[]> {
   const supabase = await createClient();
 
@@ -108,4 +178,18 @@ export async function getPendingTaskRouteBaseline(
     })),
     totalDistance: computeTotalRouteDistance(orderedTasks, metric, DISPATCH_START_POINT),
   };
+}
+
+export async function getPendingTaskRouteOptimized(
+  metricFlag: string | undefined = process.env.ROUTE_DISTANCE_METRIC,
+): Promise<OptimizedRouteResponse> {
+  const metric = resolveDistanceMetric(metricFlag);
+  const pendingTasks = await getPendingTasksWithLocations();
+  const taskCoordinates: TaskCoordinate[] = pendingTasks.map((task) => ({
+    taskId: task.id,
+    x: task.location.x,
+    y: task.location.y,
+  }));
+
+  return optimizeTaskRouteFromCoordinates(DISPATCH_START_POINT, taskCoordinates, metric);
 }

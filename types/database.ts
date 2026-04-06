@@ -91,3 +91,23 @@ export type BaselineRouteResponse = {
   sequence: BaselineRouteStop[];
   totalDistance: number;
 };
+
+export type TaskCoordinate = {
+  taskId: number;
+  x: number;
+  y: number;
+};
+
+export type RouteComparison = {
+  beforeDistance: number;
+  afterDistance: number;
+  improvementPercent: number;
+};
+
+export type OptimizedRouteResponse = {
+  startPoint: RoutePoint;
+  metric: DistanceMetric;
+  orderedTaskIds: number[];
+  totalOptimizedDistance: number;
+  comparison: RouteComparison;
+};
