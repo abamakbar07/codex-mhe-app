@@ -11,6 +11,16 @@ This project is a Next.js App Router starter with Supabase wiring.
 2. Ensure `.env.local` has values for:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `SUPABASE_URL`
+   - `SUPABASE_JWT_SECRET`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+   - `POSTGRES_DATABASE`
+   - `POSTGRES_HOST`
+   - `POSTGRES_PASSWORD`
+   - `POSTGRES_PRISMA_URL`
+   - `POSTGRES_URL`
+   - `POSTGRES_URL_NON_POOLING`
+   - `POSTGRES_USER`
    - `ROUTE_DISTANCE_METRIC` (`manhattan` or `euclidean`, defaults to `manhattan`)
 3. In Vercel, go to **Project Settings → Environment Variables** and add the same keys for Preview and Production.
 4. Run the app:
@@ -34,6 +44,16 @@ Use this sequence before sharing a preview URL:
    Required keys:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `SUPABASE_URL`
+   - `SUPABASE_JWT_SECRET`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+   - `POSTGRES_DATABASE`
+   - `POSTGRES_HOST`
+   - `POSTGRES_PASSWORD`
+   - `POSTGRES_PRISMA_URL`
+   - `POSTGRES_URL`
+   - `POSTGRES_URL_NON_POOLING`
+   - `POSTGRES_USER`
    - `ROUTE_DISTANCE_METRIC`
 3. Deploy preview:
    ```bash
