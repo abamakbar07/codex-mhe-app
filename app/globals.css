@@ -1,0 +1,46 @@
+:root {
+  color-scheme: light;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #f6f7f9;
+  color: #14161a;
+}
+
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.panel {
+  background: #ffffff;
+  border: 1px solid #e6e8eb;
+  border-radius: 8px;
+  padding: 1rem;
+  min-height: 210px;
+}
+
+.panel h2 {
+  margin-top: 0;
+}
+
+.placeholder {
+  border: 1px dashed #c5cad2;
+  border-radius: 6px;
+  background: #fafbfc;
+  padding: 1rem;
+  color: #4a5568;
+}
